@@ -11,4 +11,4 @@ const uppy = new Uppy()
 uppy.on('complete', (result) => {
   console.log('Upload complete! We’ve uploaded these files:', result.successful)
   
-  export default App; 
+  
