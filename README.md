@@ -1,2 +1,1 @@
-# Uppy
-new library i use
+bjdb
