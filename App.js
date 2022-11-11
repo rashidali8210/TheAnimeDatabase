@@ -1,34 +1,53 @@
+import { useState, useEffect } from 'react';
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
+import MainContent from './components/MainContent';
 
-AvatarPicker(currentAvatar ){
-  const {user} = this.props
-  const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-             username: user.username
-        })
-    };
 
-  const uppy = Uppy({ autoProceed: true })
-      .use(Dashboard, { trigger: '#select-files' })
-      .use(GoogleDrive, { target: Dashboard, serverUrl: apiConstants.API_GENERAL_URL+'changeprofilepic' })
-      .use(Instagram, { target: Dashboard, serverUrl: apiConstants.API_GENERAL_URL+'changeprofilepic' })
-      .use(Webcam, { target: Dashboard })
-      .use(Tus, { endpoint:  apiConstants.API_GENERAL_URL+'changeprofilepic?access-token='+user.username, requestOptions })
-      .on('complete', (result) => {
-        console.log('Upload result:', result)
-      })
+function App() {
+	const [topAnime, SetTopAnime] = useState([]);
+	const [search, SetSearch] = useState("");
 
-return (
-  <div>
-    <img src={currentAvatar} alt="Current Avatar" />
-    <DragDrop
-      uppy={uppy}
-      locale={{
-        strings: {
-          // Text to show on the droppable area.
-          // `%{browse}` is replaced with a link that opens the system file selection dialog.
-          dropHereOr: 'Drop here or %{browse}',
-          // Used as the label for the link that opens the system file selection dialog.
-          browse: 'browse'
-        }
+	const GetTopAnime = async () => {
+		const temp = await fetch(`https://api.jikan.moe/v4/anime`)
+			.then(res => res.json());
+
+		SetTopAnime(temp.data);
+	}
+
+	const HandleSearch = e => {
+		e.preventDefault();
+
+		FetchAnime(search);
+	}
+
+	const FetchAnime = async (query) => {
+		const temp = await fetch(`https://api.jikan.moe/v4/anime?q=${query}&order_by=title&sort=asc&limit=10`)
+			.then(res => res.json());
+
+		SetTopAnime(temp.data);
+	}
+
+	useEffect(() => {
+		GetTopAnime();
+	}, []);
+	
+	return (
+		<div className="App">
+		
+			<img src={process.env.PUBLIC_URL + "/images/images.png"} style={{position:"fixed", width:"100px"}}/>
+			<Header />
+			<div className="content-wrap">
+				<Sidebar 
+					topAnime={topAnime} />
+				<MainContent
+					HandleSearch={HandleSearch}
+					search={search}
+					SetSearch={SetSearch}
+					animeList={topAnime} />
+			</div>
+		</div>
+	);
+}
+
+export default App;
